@@ -10,9 +10,9 @@ public:
     virtual void initialize(const Eigen::SparseMatrix<double, Eigen::RowMajor>& A);
     Oracle() {}
     virtual ~Oracle() = default;
-    virtual void precondition(const Vec& v, Vec& precond_v);
-    virtual void multiply(const Vec& x, Vec& Ax) {Ax = A * x;}
-    virtual void project(Vec& v) {};
+    virtual void precondition(const Vec& v, Vec& precond_v) const ;
+    virtual void multiply(const Vec& x, Vec& Ax) const {Ax = A * x;}
+    virtual void project(Vec& v) const {};
 };
 
 void Oracle::initialize(const Eigen::SparseMatrix<double, Eigen::RowMajor>& A) {
@@ -27,7 +27,7 @@ void Oracle::initialize(const Eigen::SparseMatrix<double, Eigen::RowMajor>& A) {
     }
 }
 
-void Oracle::precondition(const Vec& v, Vec& precond_v)
+void Oracle::precondition(const Vec& v, Vec& precond_v) const 
 {
     precond_v = v;
 }
