@@ -1,3 +1,4 @@
+#pragma once
 #include "Oracle.h"
 
 class DiagonalPreconditionedOracle: public Oracle

@@ -1,3 +1,4 @@
+#pragma once
 #include <Eigen/Eigen>
 
 class Oracle

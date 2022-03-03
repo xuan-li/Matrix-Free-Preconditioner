@@ -1,6 +1,7 @@
 #include <Eigen/Eigen>
 #include "IO/MatrixBinaryIO.h"
 #include "PreconditionedProblem/DiagonalPrecondition.h"
+#include "PreconditionedProblem/LMPPrecondition.h"
 #include "Solver/ConjugateGradient.h"
 #include "Solver/Minres.h"
 
@@ -10,7 +11,7 @@ int main(int argc, char** argv)
     Eigen::VectorXd rhs;
     Eigen::read_binary_sparse(DATA_DIR"system_matrix_random.bin", A);
     Eigen::read_binary(DATA_DIR"rhs_random.bin", rhs);
-    DiagonalPreconditionedOracle oracle;
+    LMPPreconditionedOracle oracle;
     oracle.initialize(A);
     Minres<double, Oracle, Eigen::VectorXd> cg(100000);
     cg.setRelativeTolerance(1e-7);
