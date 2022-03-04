@@ -2,6 +2,7 @@
 #include "Oracle.h"
 #include <Eigen/Cholesky>
 #include <iostream>
+#include "../KLargest.h"
 
 class LMPPreconditionedOracle: public Oracle
 {
@@ -16,12 +17,39 @@ public:
     Matd L11, L11T;
     Mat L21;
     Vec d1, d2;
+    Eigen::VectorXi perm;
+
+    void multiply(const Vec& x, Vec& Ax) const override {
+        auto inv_perm_x = inverse_permute(x);
+        Base::multiply(inv_perm_x, Ax);
+        Ax = permute(Ax);
+    }
+
+    Vec diagonal() const override {
+        return permute(diagonal_entries);
+    }
 
     void initialize(const Mat& A) override {
         Base::initialize(A);
 
         k = 10;
         n = A.cols();
+
+        // permutation
+        perm.resize(n);
+        double pivot = kthLargest(this->diagonal_entries, k+1);
+        Eigen::VectorXi flag = Eigen::VectorXi::Zero(n);
+        int i = 0;
+        for (int j = 0; j < n; ++j) {
+            if (this->diagonal_entries[j] > pivot) {
+                perm[i++] = j;
+                flag(j) = 1;
+            }
+        }
+        for (int j = 0; j < n; ++j) {
+            if (flag(j) == 0)
+                perm[i++] = j;
+        }
 
         Matd H11, H21;
         H11.resize(k, k);
@@ -31,8 +59,9 @@ public:
             // get first k cols
             Vec ei = Vec::Zero(n);
             ei(i) = 1.0;
+
             Vec hi;
-            this->multiply(ei, hi);
+            multiply(ei, hi);
             H11.col(i) = hi.topRows(k);
             H21.col(i) = hi.bottomRows(n - k);
         }
@@ -49,10 +78,9 @@ public:
             D1_inv(i, i) = 1.0 / D1_inv(i, i);
         }
 
-
         L21 = (H21 * L11T.triangularView<Eigen::Upper>().solve(D1_inv)).sparseView();
-        std::cout << L21.rows() << " " << n << " " << k << std::endl;
         d2 = Vec::Zero(n - k);
+        Vec diag = diagonal();
         for (int i = 0; i < n - k; ++i)
         {
             double sum = 0;
@@ -60,7 +88,7 @@ public:
             {
                 sum += it.value() * it.value() * D1(it.col());
             }
-            d2(i) = this->diagonal_entries[i + k] - sum;
+            d2(i) = diag[i + k] - sum;
         }
     }
 
@@ -89,5 +117,20 @@ public:
         x = L11T.triangularView<Eigen::Upper>().solve(x - L21.transpose() * y);
         Pv.segment(0, k) += x;
         Pv.segment(k, n - k) += y;
+    }
+
+    Vec permute(const Vec& v_in) const
+    {
+        Vec v_out = v_in;
+        for (int i = 0; i < n; ++i) 
+            v_out(perm(i)) = v_in(i);
+        return v_out;
+    }
+    Vec inverse_permute(const Vec& v_in) const
+    {
+        Vec v_out = v_in;
+        for (int i = 0; i < n; ++i) 
+            v_out(i) = v_in(perm(i));
+        return v_out;
     }
 };

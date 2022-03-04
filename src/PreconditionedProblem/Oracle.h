@@ -11,6 +11,7 @@ public:
     virtual void initialize(const Eigen::SparseMatrix<double, Eigen::RowMajor>& A);
     Oracle() {}
     virtual ~Oracle() = default;
+    virtual Vec diagonal() const {return diagonal_entries;};
     virtual void precondition(const Vec& v, Vec& precond_v) const ;
     virtual void multiply(const Vec& x, Vec& Ax) const {Ax = A * x;}
     virtual void project(Vec& v) const {};
