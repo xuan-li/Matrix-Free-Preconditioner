@@ -29,12 +29,10 @@ public:
         return permute(diagonal_entries);
     }
 
-    void initialize(const Mat& A) override {
+    void initialize(const Mat& A, int k) {
         Base::initialize(A);
-
-        k = 10;
+        this->k = k;
         n = A.cols();
-
         // permutation
         perm.resize(n);
         double pivot = kthLargest(this->diagonal_entries, k+1);
@@ -59,7 +57,6 @@ public:
             // get first k cols
             Vec ei = Vec::Zero(n);
             ei(i) = 1.0;
-
             Vec hi;
             multiply(ei, hi);
             H11.col(i) = hi.topRows(k);
@@ -123,14 +120,14 @@ public:
     {
         Vec v_out = v_in;
         for (int i = 0; i < n; ++i) 
-            v_out(perm(i)) = v_in(i);
+            v_out(i) = v_in(perm(i));
         return v_out;
     }
     Vec inverse_permute(const Vec& v_in) const
     {
         Vec v_out = v_in;
         for (int i = 0; i < n; ++i) 
-            v_out(i) = v_in(perm(i));
+            v_out(perm(i)) = v_in(i);
         return v_out;
     }
 };
