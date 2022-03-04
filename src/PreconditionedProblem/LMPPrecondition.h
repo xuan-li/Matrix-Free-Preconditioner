@@ -66,17 +66,17 @@ public:
         // !!!!!!!! Eigen solves PAPT = LDLT.... !!!!!!!
         Eigen::LDLT<Matd> ldlt;
         ldlt.compute(H11);
-        H11 = ldlt.matrixLDLT();
         d1 = ldlt.vectorD();
         L11 = ldlt.matrixL();
         L11T = ldlt.matrixU();
+        H11 = L11 * d1.asDiagonal() * L11T;
         auto perm2 = Eigen::PermutationMatrix<Eigen::Dynamic>(ldlt.transpositionsP()).indices();
         for (int i = 0; i < n; ++ i) {
             if (perm(i) < k)
                 perm(i) = perm2(perm(i));
         }
         // permute H21's cols
-        Matd new_H21;
+        Matd new_H21 = H21;
         for (int i = 0; i < k; ++i) {
             new_H21.col(perm2(i)) = H21.col(i);
         }

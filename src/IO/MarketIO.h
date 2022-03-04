@@ -149,7 +149,7 @@ inline bool getMarketHeader(const std::string& filename, int& sym, bool& iscompl
 }
 
 template <typename SparseMatrixType>
-bool loadMarket(SparseMatrixType& mat, const std::string& filename)
+bool loadMarket(SparseMatrixType& mat, const std::string& filename, bool symmetric=false)
 {
     typedef typename SparseMatrixType::Scalar Scalar;
     typedef typename SparseMatrixType::StorageIndex StorageIndex;
@@ -194,6 +194,7 @@ bool loadMarket(SparseMatrixType& mat, const std::string& filename)
             if (i >= 0 && j >= 0 && i < M && j < N) {
                 ++count;
                 elements.push_back(T(i, j, value));
+                if (symmetric) elements.push_back(T(j, i, value));
             } else
                 std::cerr << "Invalid read: " << i << "," << j << "\n";
         }
