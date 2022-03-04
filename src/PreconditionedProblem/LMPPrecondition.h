@@ -48,7 +48,7 @@ public:
             if (flag(j) == 0)
                 perm[j] = i++;
         }
-
+        if (k == 0) return;
         Matd H11, H21;
         H11.resize(k, k);
         H21.resize(n - k, k);
@@ -103,12 +103,15 @@ public:
     }
 
     void precondition(const Vec& v, Vec& Pv) const override {
-        // Pv = v;
-        // Vec diag = diagonal();
-        // for (int i = 0; i < this->diagonal_entries.size(); ++i) {
-        //     if (abs(diag[i]) > 0)
-        //         Pv[i] /= diag[i];
-        // }
+        if (k == 0) {
+            Pv = v;
+            Vec diag = diagonal();
+            for (int i = 0; i < this->diagonal_entries.size(); ++i) {
+                if (abs(diag[i]) > 0)
+                    Pv[i] /= diag[i];
+            }
+            return;
+        }
 
         // [L11T  L21T]^(-1) [D1   ]^(-1) [L11   ]^(-1) 
         // [         I]      [   D2]      [L21  I]
