@@ -14,8 +14,6 @@ include_directories(external)
 add_compile_definitions("DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data/\"")
 
 add_executable(preconditoner_test src/main.cpp)
-add_executable(module_test src/test.cpp)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(preconditoner_test PUBLIC OpenMP::OpenMP_CXX)
-    target_link_libraries(module_test PUBLIC OpenMP::OpenMP_CXX)
 endif()
